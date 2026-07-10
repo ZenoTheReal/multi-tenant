@@ -1,8 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { GlobalValidationPipe } from './common/pipes/global-validation.pipe';
+import { RequestInterceptor } from './common/interceptors/request.interceptor';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,13 +14,8 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') ?? 3000;
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+  app.useGlobalPipes(new GlobalValidationPipe());
+  app.useGlobalInterceptors(new RequestInterceptor(), new ResponseInterceptor());
 
   const config = new DocumentBuilder()
     .setTitle('API Documentation')
@@ -27,7 +25,9 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('apidocs', app, documentFactory);
+  SwaggerModule.setup('apidocs', app, documentFactory,
+    // { swaggerOptions: { defaultModelsExpandDepth: -1 } }
+  );
 
   await app.listen(port);
 
