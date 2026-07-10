@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { GlobalValidationPipe } from './common/pipes/global-validation.pipe';
 import { RequestInterceptor } from './common/interceptors/request.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { CustomExceptionFilter } from './common/filters/custom-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,6 +17,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(new GlobalValidationPipe());
   app.useGlobalInterceptors(new RequestInterceptor(), new ResponseInterceptor());
+  app.useGlobalFilters(new CustomExceptionFilter(configService));
 
   const config = new DocumentBuilder()
     .setTitle('API Documentation')
