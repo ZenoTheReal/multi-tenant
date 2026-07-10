@@ -4,7 +4,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiCreatedResponse, ApiOkResponse
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
-import { Roles } from 'src/common/guards/roles.decorator';
+import { Roles } from '@common';
 
 @ApiTags('User')
 @Controller('user')

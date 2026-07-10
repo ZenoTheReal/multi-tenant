@@ -1,9 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { ConfigModule } from './config/config.module';
-import { DbConnectionModule } from './db-connection/db-connection.module';
-import { AuthModule } from './auth/auth.module';
+import { ConfigModule, DbConnectionModule, AuthModule } from '@core';
 
 @Global()
 @Module({

@@ -3,10 +3,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GlobalValidationPipe } from './common/pipes/global-validation.pipe';
-import { RequestInterceptor } from './common/interceptors/request.interceptor';
-import { ResponseInterceptor } from './common/interceptors/response.interceptor';
-import { CustomExceptionFilter } from './common/filters/custom-exception.filter';
+import { GlobalValidationPipe, RequestInterceptor, ResponseInterceptor, CustomExceptionFilter } from '@common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
