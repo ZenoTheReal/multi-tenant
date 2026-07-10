@@ -1,11 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
+import { UserRepoService } from '../../modules/user/repository/user-repo.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly userRepo: UserRepoService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -15,7 +19,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: any) {
     // This payload is the decoded JWT token.
-    // Return the user object or whatever you want appended to the Request object (req.user)
-    return { userId: payload.sub, username: payload.username, roles: payload.roles };
+    // Fetch the full user from DB and populate their roles so guards work
+    const user = await this.userRepo.findByIdWithPopulatedRoles(payload.sub);
+    
+    if (!user) {
+      throw new UnauthorizedException('User no longer exists or is disabled');
+    }
+
+    // By returning this object, Passport attaches it to `req.user`
+    return user;
   }
 }
+

@@ -4,6 +4,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiCreatedResponse, ApiOkResponse
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { Roles } from 'src/common/guards/roles.decorator';
 
 @ApiTags('User')
 @Controller('user')
@@ -33,6 +34,7 @@ export class UserController {
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
+  @Roles('admin','user')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Soft delete a user by ID' })
   @ApiOkResponse({ description: 'User successfully soft deleted.' })

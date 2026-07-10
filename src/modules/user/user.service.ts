@@ -43,12 +43,7 @@ export class UserService {
   }
 
   async login(loginDto: LoginUserDto) {
-    // We must use the model directly to select the password because our generic findOne doesn't select it if it's select: false
-    // Since we need it, we can temporarily cast or expose a specific method on repo, but let's just do a workaround for now
-    // Actually, our BaseRepository's findOne returns whatever mongoose returns. Since password is select: false, we have to use .select('+password') 
-    // To do this cleanly, I'll update BaseRepository or just do it here if possible. 
-    // Wait, the repo doesn't expose the model directly. Let's add an explicit findByEmailWithPassword to UserRepoService or just use any here.
-    const user = await (this.userRepo as any).model.findOne({ email: loginDto.email, isDeleted: false }).select('+password').exec();
+    const user = await this.userRepo.findByEmailWithPassword(loginDto.email);
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -66,7 +61,8 @@ export class UserService {
         _id: user._id,
         email: user.email,
         name: user.name,
-        roles: user.roles,
+        // Optional: you can fetch roles if you want them in the response body, 
+        // but they are no longer strictly needed here since JwtStrategy fetches them!
       }
     };
   }
