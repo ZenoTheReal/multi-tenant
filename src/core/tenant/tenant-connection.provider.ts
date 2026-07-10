@@ -1,4 +1,4 @@
-import { Provider, Scope } from '@nestjs/common';
+import { Provider, Scope, Logger } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -11,10 +11,10 @@ export const tenantConnectionProvider: Provider = {
   inject: [REQUEST, getConnectionToken()],
   useFactory: (request: any, connection: Connection) => {
     let tenantId = request.user?.tenantId;
+    const logger = new Logger('TenantConnectionProvider');
     
     // In NestJS, request-scoped providers evaluate BEFORE AuthGuard runs.
     // So request.user will be undefined. We manually decode the token here to extract tenantId.
-    // The guard will run immediately after and verify the token signature for actual security.
     if (!tenantId && request.headers?.authorization) {
       const authHeader = request.headers.authorization;
       if (authHeader.startsWith('Bearer ')) {
@@ -22,14 +22,17 @@ export const tenantConnectionProvider: Provider = {
         try {
           const payloadBase64 = token.split('.')[1];
           if (payloadBase64) {
-            const payloadBuffer = Buffer.from(payloadBase64, 'base64');
+            // Use base64url to properly handle JWT encoding
+            const payloadBuffer = Buffer.from(payloadBase64, 'base64url');
             const payload = JSON.parse(payloadBuffer.toString('utf-8'));
             if (payload.tenantId) {
               tenantId = payload.tenantId;
+            } else {
+              logger.warn('Token provided but tenantId missing in payload! Please login again to get a new token.');
             }
           }
         } catch (e) {
-          // Ignore error, fallback connection will be used, and AuthGuard will throw 401
+          logger.error('Failed to parse JWT payload for tenantId extraction', e);
         }
       }
     }
