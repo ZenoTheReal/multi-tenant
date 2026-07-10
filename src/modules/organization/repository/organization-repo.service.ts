@@ -11,10 +11,10 @@ export class OrganizationRepoService extends BaseRepository<Organization> {
   }
 
   async findByOrgCode(orgCode: string): Promise<Organization | null> {
-    return this.orgModel.findOne({ orgCode, isDeleted: false }).exec();
+    return this.orgModel.findOne({ orgCode, isDeleted: false });
   }
 
   async findByTenantId(tenantId: string): Promise<Organization | null> {
-    return this.orgModel.findOne({ tenantId, isDeleted: false }).exec();
+    return this.orgModel.findOne({ tenantId, isDeleted: false });
   }
 }

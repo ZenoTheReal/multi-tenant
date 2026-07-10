@@ -26,13 +26,21 @@ export class ResponseInterceptor implements NestInterceptor {
           return data;
         }
 
+        let processedData = data;
+        
+        // If the data is a Mongoose document (or has a toJSON method), serialize it 
+        // to remove internal mongoose states like $__, _doc, etc.
+        if (processedData && typeof processedData.toJSON === 'function') {
+          processedData = processedData.toJSON();
+        }
+
         // If data is a plain object, we spread it as you requested
-        if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
+        if (typeof processedData === 'object' && processedData !== null && !Array.isArray(processedData)) {
           return {
             statusCode,
             success: true,
             timestamp: new Date().toISOString(),
-            ...data,
+            ...processedData,
           };
         }
 
@@ -41,7 +49,7 @@ export class ResponseInterceptor implements NestInterceptor {
         return {
           statusCode,
           success: true,
-          data: data !== undefined ? data : null,
+          data: processedData !== undefined ? processedData : null,
           timestamp: new Date().toISOString(),
         };
       }),
