@@ -16,7 +16,7 @@ export class User extends Document {
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Role' }], index:true })
   roles: Types.ObjectId[];
 
-  @Prop({ default: () => `db_${uuidv4()}`, index: true })
+  @Prop({ default: () => `db_${uuidv4().replace(/-/g, '')}`, index: true })
   tenantId: string;
 
   @Prop({ default: false, index: true })
