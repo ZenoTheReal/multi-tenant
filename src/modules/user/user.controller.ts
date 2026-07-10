@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { Roles } from '@common';
 
 @ApiTags('User')
@@ -32,9 +33,26 @@ export class UserController {
     return this.userService.findAllUsers();
   }
 
+  @Patch(':id/role')
+  @UseGuards(AuthGuard('jwt'))
+  @Roles('organizer')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Promote or demote a user role (Organizer only)' })
+  @ApiOkResponse({ description: 'User role successfully updated.' })
+  async updateRole(
+    @Param('id') userIdToUpdate: string,
+    @Body() dto: UpdateUserRoleDto,
+    @Req() req: any
+  ) {
+    // req.user is provided by JwtStrategy
+    const currentUserId = req.user.sub || req.user._id;
+    const tenantId = req.user.tenantId;
+    return this.userService.updateRole(userIdToUpdate, dto.role, currentUserId, tenantId);
+  }
+
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
-  @Roles('admin','user')
+  @Roles('admin','organizer')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Soft delete a user by ID' })
   @ApiOkResponse({ description: 'User successfully soft deleted.' })

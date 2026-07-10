@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, IsOptional, IsArray, IsMongoId } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class RegisterUserDto {
@@ -15,10 +15,14 @@ export class RegisterUserDto {
   @MinLength(6, { message: 'Password must be at least 6 characters long' })
   password: string;
 
-  @ApiPropertyOptional({ type: [String], description: 'Optional list of Role Object IDs to assign' })
+  @ApiPropertyOptional({ example: 'My Company', description: 'Name of the organization (Required if registering as an Organizer)' })
   @IsOptional()
-  @IsArray()
-  @IsMongoId({ each: true })
-  roles?: string[];
+  @IsString()
+  organizationName?: string;
+
+  @ApiPropertyOptional({ example: 'A1B2C3D4', description: 'Organization code (Required if registering as an Employee to join an existing org)' })
+  @IsOptional()
+  @IsString()
+  orgCode?: string;
 }
 
