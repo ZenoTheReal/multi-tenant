@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
 import { RoleRepoModule } from './repository/role-repo.module';
+import { RoleController } from './role.controller';
+import { RoleService } from './role.service';
 
 @Module({
   imports: [RoleRepoModule],
-  // Export RoleRepoModule so other modules (like Auth or User) can access the Role repository if needed
-  exports: [RoleRepoModule], 
+  controllers: [RoleController],
+  providers: [RoleService],
+  exports: [RoleRepoModule, RoleService], 
 })
 export class RoleModule {}
+
