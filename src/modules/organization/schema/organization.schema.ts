@@ -22,7 +22,7 @@ export class Organization extends Document {
 
 export const OrganizationSchema = SchemaFactory.createForClass(Organization);
 
-OrganizationSchema.pre('save', async function (next: any) {
+OrganizationSchema.pre('save', async function () {
   if (!this.orgCode) {
     let isUnique = false;
     let newCode = '';
@@ -36,5 +36,4 @@ OrganizationSchema.pre('save', async function (next: any) {
     }
     this.orgCode = newCode;
   }
-  next();
 });
