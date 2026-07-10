@@ -11,7 +11,7 @@ export class UserService {
   constructor(
     private readonly userRepo: UserRepoService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async findAllUsers() {
     return this.userRepo.find({ isDeleted: false });
@@ -38,7 +38,6 @@ export class UserService {
     // Remove password from returned object
     const userObject = newUser.toObject();
     delete userObject.password;
-    
     return userObject;
   }
 
