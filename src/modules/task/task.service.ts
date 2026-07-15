@@ -1,27 +1,23 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { Model } from 'mongoose';
-import { Task } from './schema/task.schema';
-import { TASK_MODEL } from './task.provider';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { TaskRepoService } from './repository/task-repo.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 
 @Injectable()
 export class TaskService {
-  constructor(@Inject(TASK_MODEL) private readonly taskModel: Model<Task>) {}
+  constructor(private readonly taskRepo: TaskRepoService) {}
 
   async createTask(createDto: CreateTaskDto) {
-    const createdTask = new this.taskModel(createDto);
-    return createdTask.save();
+    return this.taskRepo.create(createDto as any);
   }
 
   async findAllTasks() {
-    return this.taskModel.find().exec();
+    return this.taskRepo.find();
   }
 
   async assignTask(taskId: string, assigneeId: string) {
-    const task = await this.taskModel.findByIdAndUpdate(
-      taskId,
-      { assigneeId },
-      { new: true }
+    const task = await this.taskRepo.update(
+      { _id: taskId },
+      { assigneeId }
     );
     if (!task) {
       throw new NotFoundException('Task not found');
